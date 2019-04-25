@@ -20,15 +20,18 @@ sdk = JWTAuth.from_settings_file("./config.json")
 client = Client(sdk)
 
 ############################################################
-#edit group name below
+#edit delete_group_name below
 ############################################################
 
 #define group to delete
-delete_group_name = "burger"
+delete_group_name = "Test"
 
-###########################################################
+
+##############################################################
+#Edit delete_group_name above
+##############################################################
+
 #color definition
-############################################################
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -57,7 +60,8 @@ for group in groups:
 	
 
 if group_exists == False:
-	print(bcolors.FAIL + "A group matching the name {0} could not be found".format(delete_group_name) + bcolors.FAIL) 
+	print(bcolors.FAIL + "\n A group matching the name {0} could not be found \n".format(delete_group_name) + bcolors.ENDC) 
+	exit()
 
 
 #get memebers of group
@@ -66,25 +70,29 @@ delete_group_members = client.group(group_id=delete_group_id).get_memberships()
 delete_group_members_size = 0
 
 for membership in delete_group_members:
-	print("{0} is a {1} of the {2} group. User ID: {3}".format(membership.user.name, membership.role, membership.group.name, membership.user.id))
+	print("{0} is a {1} of the {2} group. User ID: {3}".format(membership.user.login, membership.role, membership.group.name, membership.user.id))
 	delete_group_members_size += 1
 
 
-
-print("Box group: {0} has {1} members".format(delete_group_name, delete_group_members_size))
-print('To proceed with deleting all {0} members of Box groups: {1} type "DELETE" and press return.'.format(delete_group_members_size, delete_group_name))
-
 #print warnign of users that will be deteled.  require user input to move forward. 
-#https://stackoverflow.com/questions/287871/print-in-terminal-with-colors
+print("Box group: {0} has {1} members".format(delete_group_name, delete_group_members_size))
+print(bcolors.FAIL + "!!!!!!!!!!!!!!!!! THIS CAN NOT BE UNDONE !!!!!!!!!!!!!!!!!!!!!" + bcolors.ENDC)
+print(bcolors.WARNING + '=========================================================== \nTo proceed with deleting all {0} members of Box groups {1}: Type "DELETE" and press return. \nTyping anything else and pressing return will abort. \n==========================================================='.format(delete_group_members_size, delete_group_name) + bcolors.ENDC)
 
 confirmation = input()
-
-print("confirmation: {0}".format(confirmation))
 
 if confirmation == "DELETE":
 	print("were deleting here")
 else:
-	print("Delete users script aborted")
+	print(bcolors.OKBLUE + "Delete users script aborted" + bcolors.ENDC)
+	exit()
+
+
+#create csv of deleted user info
+
+
+#delete users
+print("deleting for real")
 
 
 
