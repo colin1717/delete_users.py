@@ -3,3 +3,6 @@ env/
 
 #authentication
 config.json
+
+#output
+deleted_users.csv
