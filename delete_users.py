@@ -20,7 +20,7 @@ sdk = JWTAuth.from_settings_file("./config.json")
 client = Client(sdk)
 
 ############################################################
-#edit delete_group_name below
+#Edit delete_group_name below
 ############################################################
 
 #define group to delete
@@ -60,33 +60,31 @@ for group in groups:
 	
 
 if group_exists == False:
-	print(bcolors.FAIL + "\n A group matching the name {0} could not be found \n".format(delete_group_name) + bcolors.ENDC) 
+	print(bcolors.FAIL + "\n A group matching the name {0} could not be found. \n".format(delete_group_name) + bcolors.ENDC) 
 	exit()
 
 
 #get memebers of group
 delete_group_members = client.group(group_id=delete_group_id).get_memberships()
 
-print(delete_group_members)
 
 delete_group_members_size = 0
 users_to_delete = {}
 
 for membership in delete_group_members:
-	print("{0} is a {1} of the {2} group. User ID: {3}".format(membership.user.login, membership.role, membership.group.name, membership.user.id))
 	delete_group_members_size += 1
 	users_to_delete[membership.user.login] = membership.user.id
 
 
 #print warnign of users that will be deteled.  require user input to move forward. 
-print("Box group {0} has {1} members".format(delete_group_name, delete_group_members_size))
+print(bcolors.WARNING + "Box group {0} has {1} members".format(delete_group_name, delete_group_members_size) + bcolors.ENDC)
 print(bcolors.FAIL + "!!!!!!!!!!!!!!!!! THIS CAN NOT BE UNDONE !!!!!!!!!!!!!!!!!!!!!" + bcolors.ENDC)
 print(bcolors.WARNING + '=========================================================== \nTo proceed with deleting all {0} members of Box groups {1}: Type "DELETE" and press return. \nTyping anything else and pressing return will abort. \n==========================================================='.format(delete_group_members_size, delete_group_name) + bcolors.ENDC)
 
 confirmation = input()
 
 if confirmation == "DELETE":
-	print("were deleting here")
+	print("Delete users confirmed...")
 else:
 	print(bcolors.OKBLUE + "Delete users script aborted" + bcolors.ENDC)
 	exit()
@@ -98,16 +96,18 @@ with open('deleted_users.csv', 'w', newline='') as output:
 
 	csv_writer.writerow(["Email", "BOX ID"])
 
-	print(delete_group_members)
-
 	for user_to_delete in users_to_delete:
 		csv_writer.writerow([user_to_delete, users_to_delete[user_to_delete]])
 
 
 #delete users
-print("deleting for real")
+print("deleting users...")
 for user in users_to_delete:
-	print("email {0}, id: {1}".format(user, users_to_delete[user]))
+	client.user(users_to_delete[user]).delete(force=True)
+
+#delete group
+client.group(delete_group_id).delete()
+print(bcolors.OKGREEN + "Group {0} and it's {1} users have been deleted.".format(delete_group_name, delete_group_members_size) + bcolors.ENDC)
 
 
 
